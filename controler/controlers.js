@@ -49,13 +49,238 @@ exports.data = async (req, res) => {
 
 exports.getpostdata = async (req, res) => {
   try {
-    const record = await Data.find();
-    res.json(record);
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $or: [
+        { videoNo: { $regex: search, $options: "i" } },
+        { titel: { $regex: search, $options: "i" } },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await Data.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
   } catch (error) {
-    console.log("error in get post data api", error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+exports.getpopularVideos = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { views: { $gt: 40 } }, // Filter for views greater than 40
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } },
+            { titel: { $regex: search, $options: "i" } },
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await Data.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+exports.getnewVideos = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { views: { $lte: 40 } }, // Filter for views less than or equal to 40
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } },
+            { titel: { $regex: search, $options: "i" } },
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await Data.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getLessPopularVideos API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getTopRate = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { views: { $gt: 100 } }, // Filter for views greater than 40
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } },
+            { titel: { $regex: search, $options: "i" } },
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await Data.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.relatedpostData = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // Split the search term into words for better matching
+    const searchWords = search.split(" ");
+    const query = {
+      $or: searchWords.map((word) => ({
+        titel: { $regex: word, $options: "i" },
+      })),
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting, and pagination
+    const records = await Data.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getMovies = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $or: [
+        { videoNo: { $regex: search, $options: "i" } },
+        { titel: { $regex: search, $options: "i" } },
+      ],
+      minutes: { $gte: 49 }, // Filter to show only videos of 49 minutes or more
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting, and pagination
+    const records = await Data.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 
 exports.deletepost = async (req, res) => {
   const id = req.params.id;
@@ -203,16 +428,89 @@ exports.updateviews = async (req, res) => {
 };
 
 
-exports.getindians = async(req,res)=>{
-   const record=await Data.find({Category:'indian'})
-   res.json(record)
-}
+exports.getindians = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { Category: "indian" }, // Filter for "indian" category
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } }, // Search by video number
+            { titel: { $regex: search, $options: "i" } },   // Search by title
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await Data.find(query)
+      .sort({ createdAt: -1 }) // Sort by newest records first
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getindians API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 
-exports.getHijabi = async(req,res)=>{
-  const record=await Data.find({Category:'hijabi'})
-  res.json(record)
-}
+exports.getHijabi = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { Category: "hijabi" }, // Filter for hijabi category
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } }, // Search in videoNo
+            { titel: { $regex: search, $options: "i" } },   // Search in titel
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await Data.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getHijabi API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 
 
 exports.getVideo = async(req,res)=>{
@@ -226,14 +524,35 @@ exports.getVideo = async(req,res)=>{
 exports.searchByName = async (req, res) => {
   try {
     const { name } = req.params;
-    
+    const { page = 1, limit = 16 } = req.query; // Get page and limit from query parameters
 
-    // Use $regex for case-insensitive and partial match
-    const results = await Data.find({ name: { $regex: name, $options: 'i' } });
+    // MongoDB query to match the name using $regex for case-insensitive and partial match
+    const query = {
+      name: { $regex: name, $options: 'i' }, // Case-insensitive match of the name
+    };
 
-    res.json(results);
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records matching the query with pagination
+    const records = await Data.find(query)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 }); // Sorting by createdAt, most recent first
+
+    // Get the total count of documents matching the query (for pagination metadata)
+    const totalRecords = await Data.countDocuments(query);
+
+    // Return the paginated data along with metadata
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Failed to fetch data" });
   }
 };
+

@@ -60,6 +60,15 @@ router.get('/', (req, res) => {
 // API Routes
 router.post("/postdata", cAPi.data);
 router.get('/getpostdata', cAPi.getpostdata);
+router.get('/relatedpostData',cAPi.relatedpostData)
+router.get('/getmovies',cAPi.getMovies)
+router.get('/getpopularVideos', cAPi.getpopularVideos);
+router.get('/getnewVideos', cAPi.getnewVideos);
+router.get('/getTopRate', cAPi.getTopRate);
+
+
+
+
 router.delete('/deletepost/:id', cAPi.deletepost);
 router.put('/updatepost/:postId', cAPi.updatepost);
 

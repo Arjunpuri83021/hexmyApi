@@ -11,7 +11,7 @@ function slugify(input) {
 
 const mongoSchema = mongoose.Schema({
   imageUrl: String,
-  altKeywords:String,
+  altKeywords: String,
   name: { type: [String], required: true },
   titel: String,
   videoNo: String,
@@ -19,8 +19,8 @@ const mongoSchema = mongoose.Schema({
   link: String,
   minutes: String,
   Category: String,
-  desc: String // New field for description
-});
+  desc: String, // New field for description
+}, { timestamps: true }); // This will automatically add createdAt and updatedAt fields
 
 // Pre-save hook to handle the name field
 mongoSchema.pre('save', function (next) {
