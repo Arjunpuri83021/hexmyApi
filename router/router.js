@@ -57,6 +57,10 @@ router.get('/', (req, res) => {
   res.send("Welcome to Hexmy API!");
 });
 
+
+router.post('/adminReg',cAPi.createAdmin)
+router.post('/adminlogin',cAPi.loginAdmin)
+
 // API Routes
 router.post("/postdata", cAPi.data);
 router.get('/getpostdata', cAPi.getpostdata);
@@ -86,5 +90,12 @@ router.get('/getHijabi', cAPi.getHijabi);
 //video Get
 router.post('/getVideo/:id', cAPi.getVideo);
 router.get("/pornstar/:name", cAPi.searchByName)
+router.post('/add-website',cAPi.addWebsite)
+router.get('/find-website',cAPi.findWebsite)
+router.delete('/delete-website/:id',cAPi.deleteWebsite)
+
+
+
+router.get('/search',cAPi.search)
 
 module.exports = router;

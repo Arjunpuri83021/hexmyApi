@@ -14,6 +14,7 @@ const mongoSchema = mongoose.Schema({
   altKeywords: String,
   name: { type: [String], required: true },
   titel: String,
+  metatitel:String,
   videoNo: String,
   views: Number,
   link: String,

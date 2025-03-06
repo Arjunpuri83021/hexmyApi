@@ -1,5 +1,9 @@
 const Data = require('../model/dataModel');
 const Stars = require('../model/Stars.model')
+const Admin = require('../model/RegAdmin')
+const Website = require('../model/website')
+
+const bcrypt = require('bcrypt');
 
 
 function slugify(input) {
@@ -10,8 +14,80 @@ function slugify(input) {
     .replace(/\s+/g, '-');
 }
 
+
+
+exports.createAdmin = async(req,res)=>{
+  const {email,password}= req.body
+  const record=new Admin({
+    email:email,
+    password:password
+  })
+
+  await record.save()
+  console.log(record)
+  res.send(record)
+}
+
+
+
+exports.loginAdmin = async (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if both email and password are provided
+  if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email and Password are required' });
+  }
+
+  try {
+      // Find admin by email
+      const admin = await Admin.findOne({ email });
+
+      if (!admin) {
+          return res.status(404).json({ success: false, message: 'Admin not found' });
+      }
+
+      // Compare the provided password with the hashed password
+      const isPasswordMatch = await bcrypt.compare(password, admin.password);
+
+      if (!isPasswordMatch) {
+          return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+
+      // Successful login
+      res.status(200).json({ success: true, message: 'Login successful', admin });
+  } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+
+
+exports.search = async(req,res)=>{
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ error: "Query parameter is required" });
+    }
+
+    // Search by title and name (case-insensitive)
+    const results = await Data.find({
+      $or: [
+        { titel: { $regex: query, $options: "i" } },
+        { name: { $regex: query, $options: "i" } }
+      ]
+    }).limit(10); // Limit to 10 results for efficiency
+
+    res.json({ records: results });
+  } catch (error) {
+    console.error("Error in search API:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+
 exports.data = async (req, res) => {
-  const { videoNo, views, link, imageUrl, titel, minutes, Category, name, desc,altKeywords } = req.body;
+  const { videoNo, views, link, imageUrl, titel, minutes, Category, name, desc,altKeywords,metatitel } = req.body;
 
   try {
     // Check if `name` is provided and valid
@@ -31,6 +107,7 @@ exports.data = async (req, res) => {
       views,
       link,
       titel,
+      metatitel,
       minutes,
       Category,
       desc
@@ -295,7 +372,7 @@ exports.deletepost = async (req, res) => {
 
 exports.updatepost = async (req, res) => {
   const { postId } = req.params;
-  const { videoNo, name, views, link, imageUrl, titel, minutes, Category, desc,altKeywords } = req.body;
+  const { videoNo, name, views, link, imageUrl, titel, minutes, Category, desc,altKeywords,metatitel} = req.body;
 
   try {
     // Check if `name` is provided and slugify it if it's an array
@@ -320,7 +397,8 @@ exports.updatepost = async (req, res) => {
         titel,
         minutes,
         Category,
-        desc
+        desc,
+        metatitel
       },
       { new: true } // Return the updated document
     );
@@ -556,3 +634,31 @@ exports.searchByName = async (req, res) => {
   }
 };
 
+exports.addWebsite = async(req,res)=>{
+  console.log(req.body)
+  const {name,link,description} = req.body
+  const record=await new Website({
+    webName:name,
+    webLink:link,
+    webDesc:description,
+  })
+
+ await record.save()
+//  console.log(record)
+ res.send(record)
+
+}
+
+exports.findWebsite = async(req,res)=>{
+  const record=await Website.find()
+  res.send(record)
+}
+
+exports.deleteWebsite = async(req,res)=>{
+  const id=req.params.id
+  const record=await Website.findByIdAndDelete(id)
+  res.send({
+    message:"deleted",
+    data:record
+  })
+}

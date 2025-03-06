@@ -16,7 +16,7 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   });
 
 // CORS Configuration
-const allowedOrigins = ['https://majehimaje.netlify.app', 'http://localhost:3000','https://hexmy.com','https://sendfex.com','https://majehimaje.fun','https://majehimajeadmin.netlify.app','https://api.majehimaje.life'];
+const allowedOrigins = ['http://localhost:3000','https://majehimaje.netlify.app','https://hexmy.com','https://sendfex.com','https://xartx.fun','https://comxxx.fun','https://majehimaje.fun','https://majehimajeadmin.netlify.app','https://api.majehimaje.life','https://hexmynext.netlify.app'];
 
 const corsOptions = {
   origin: (origin, callback) => {

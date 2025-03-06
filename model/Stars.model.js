@@ -8,4 +8,7 @@ const mongoSchema=mongoose.Schema({
 })
 
 
+
 module.exports = mongoose.model('Stars',mongoSchema)
+
+
